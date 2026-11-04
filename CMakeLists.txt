@@ -14,6 +14,7 @@ if(PROJECT_IS_TOP_LEVEL)
     set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
     enable_testing()
 
+    add_executable(vespera_test)
     add_test(NAME vespera_test COMMAND vespera_test)
 
     file(GLOB_RECURSE VesperaUnitTestSources CONFIGURE_DEPENDS
