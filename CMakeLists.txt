@@ -21,9 +21,33 @@ function(vespera_target_defaults target)
     set_target_properties(${target} PROPERTIES COMPILE_WARNING_AS_ERROR ON)
 endfunction()
 
+
+
 if(PROJECT_IS_TOP_LEVEL)
     set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
     enable_testing()
+
+    add_library(vespera)
+
+    file(GLOB_RECURSE VesperaSources CONFIGURE_DEPENDS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.inl"
+    )
+
+    target_sources(vespera PRIVATE ${VesperaSources})
+    vespera_target_defaults(vespera)
+
+    add_executable(vespera_app)
+
+    file(GLOB_RECURSE VesperaAppSources CONFIGURE_DEPENDS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.inl"
+    )
+    target_sources(vespera_app PRIVATE ${VesperaAppSources})
+    target_include_directories(vespera_app PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+    target_link_libraries(vespera_app PRIVATE vespera)
 
     add_executable(vespera_test)
     add_test(NAME vespera_test COMMAND vespera_test)
@@ -37,3 +61,4 @@ if(PROJECT_IS_TOP_LEVEL)
     target_sources(vespera_test PRIVATE ${VesperaUnitTestSources})
     vespera_target_defaults(vespera_test)
 endif()
+
