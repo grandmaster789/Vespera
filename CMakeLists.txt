@@ -41,21 +41,24 @@ if(PROJECT_IS_TOP_LEVEL)
     add_executable(vespera_app)
 
     file(GLOB_RECURSE VesperaAppSources CONFIGURE_DEPENDS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.inl"
+        "${CMAKE_CURRENT_SOURCE_DIR}/app/*.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/app/*.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/app/*.inl"
     )
     target_sources(vespera_app PRIVATE ${VesperaAppSources})
     target_include_directories(vespera_app PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
     target_link_libraries(vespera_app PRIVATE vespera)
+    vespera_target_defaults(vespera_app)
 
     add_executable(vespera_test)
+    target_include_directories(vespera_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+    target_link_libraries(vespera_test PRIVATE vespera)
     add_test(NAME vespera_test COMMAND vespera_test)
 
     file(GLOB_RECURSE VesperaUnitTestSources CONFIGURE_DEPENDS
-            "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.cpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.inl"
+        "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.inl"
     )
 
     target_sources(vespera_test PRIVATE ${VesperaUnitTestSources})
