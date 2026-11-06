@@ -36,6 +36,7 @@ if(PROJECT_IS_TOP_LEVEL)
     )
 
     target_sources(vespera PRIVATE ${VesperaSources})
+    target_include_directories(vespera PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
     vespera_target_defaults(vespera)
 
     add_executable(vespera_app)
@@ -46,12 +47,10 @@ if(PROJECT_IS_TOP_LEVEL)
         "${CMAKE_CURRENT_SOURCE_DIR}/app/*.inl"
     )
     target_sources(vespera_app PRIVATE ${VesperaAppSources})
-    target_include_directories(vespera_app PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
     target_link_libraries(vespera_app PRIVATE vespera)
     vespera_target_defaults(vespera_app)
 
     add_executable(vespera_test)
-    target_include_directories(vespera_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
     target_link_libraries(vespera_test PRIVATE vespera)
     add_test(NAME vespera_test COMMAND vespera_test)
 
@@ -61,7 +60,32 @@ if(PROJECT_IS_TOP_LEVEL)
         "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.inl"
     )
 
+    list(FILTER VesperaUnitTestSources EXCLUDE REGEX "/tests/death/")
+
     target_sources(vespera_test PRIVATE ${VesperaUnitTestSources})
     vespera_target_defaults(vespera_test)
+
+    # Death tests: each tests/death/<name>.cpp is its own executable that must
+    # die from a failed assert/check (see cmake/death_test.cmake).
+    string(REPLACE ";" "|" VesperaEmulator "${CMAKE_CROSSCOMPILING_EMULATOR}")
+    file(GLOB VesperaDeathTestSources CONFIGURE_DEPENDS
+        "${CMAKE_CURRENT_SOURCE_DIR}/tests/death/*.cpp"
+    )
+    foreach(source IN LISTS VesperaDeathTestSources)
+        get_filename_component(name ${source} NAME_WE)
+
+        add_executable(death_${name} ${source})
+        target_link_libraries(death_${name} PRIVATE vespera)
+        vespera_target_defaults(death_${name})
+
+        add_test(
+            NAME death_${name}
+            COMMAND ${CMAKE_COMMAND}
+                -DEXE=$<TARGET_FILE:death_${name}>
+                -DEMULATOR=${VesperaEmulator}
+                -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/death_test.cmake
+        )
+
+    endforeach()
 endif()
 
