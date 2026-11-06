@@ -10,13 +10,13 @@ namespace vespera::core {
 }
 
 #ifdef NDEBUG
-    #define VESPERA_ASSERT(cond, message) do { } while(0)
+    #define VESPERA_ASSERT(cond, message) do { (void)sizeof(cond); } while(0)
 #else
     #define VESPERA_ASSERT(cond, message) do { if (!(cond)) { vespera::core::assertion_failed(#cond, message, std::source_location::current()); } } while (0)
 #endif
 
 #define VESPERA_CHECK(cond, message) do { if (!(cond)) { vespera::core::check_failed(#cond, message, std::source_location::current()); } } while(0)
-#define VESPERA_UNREACHABLE std::unreachable();
-#define VESPERA_BREAK __builtin_debugtrap();
+#define VESPERA_UNREACHABLE std::unreachable()
+#define VESPERA_BREAK __debugbreak()
 
 #endif
