@@ -3,9 +3,6 @@
 
 #include <source_location>
 #include <format>
-#include <iostream>
-
-#include "assert.h"
 #include "logger/log_level.h"
 
 namespace vespera::core {
@@ -14,25 +11,7 @@ namespace vespera::core {
         logger::e_LogLevel   m_Level = logger::e_LogLevel::info;
     };
 
-    inline void log_message(const LogMeta& meta, const std::string& message) {
-        std::cerr <<
-            std::format("{} {}:{} {}\n",
-                meta.m_Level,
-                meta.m_Location.file_name(),
-                meta.m_Location.line(),
-                message
-            );
-
-        VESPERA_CHECK(meta.m_Level != logger::e_LogLevel::fatal, "Fatal error");
-    }
-
-    template <typename...Ts>
-    constexpr std::string format_log_message(
-        std::format_string<Ts...> format_message,
-        Ts&&... args
-    ) {
-        return std::format(format_message, std::forward<Ts>(args)...);
-    }
+    void log_message(const LogMeta& meta, const std::string& message);
 }
 
 #define VESPERA_LOG_MACRO(level, ...) vespera::core::log_message( \
@@ -40,7 +19,7 @@ namespace vespera::core {
         .m_Location = std::source_location::current(),            \
         .m_Level    = level                                       \
     },                                                            \
-    vespera::core::format_log_message(__VA_ARGS__)                \
+    std::format(__VA_ARGS__)                                      \
 )
 
 #define VESPERA_LOG_TRACE(...)   VESPERA_LOG_MACRO(vespera::core::logger::e_LogLevel::trace,   __VA_ARGS__)
