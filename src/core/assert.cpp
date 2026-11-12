@@ -4,6 +4,15 @@
 #include <cstdio>
 #include <format>
 
+// TODO - move platform-specific includes to a central, consolidated place
+#ifdef _WIN32
+    #define WIN32_LEAN_AND_MEAN
+    #define NOMINMAX
+
+    #include <windows.h>
+#else
+#endif
+
 namespace vespera::core {
     [[noreturn]]
     void assertion_failed(
@@ -23,7 +32,13 @@ namespace vespera::core {
             stderr
         );
 
-        VESPERA_BREAK;
+#ifdef _WIN32
+    if (IsDebuggerPresent())
+        __debugbreak();
+#else
+    // read from /proc/self/status and if TracePid is nonzero
+    __builtin_debugtrap();
+#endif
 
         std::abort();
     }
@@ -48,7 +63,13 @@ namespace vespera::core {
             stderr
         );
 
-        VESPERA_BREAK;
+#ifdef _WIN32
+        if (IsDebuggerPresent())
+            __debugbreak();
+#else
+        // read from /proc/self/status and if TracePid is nonzero
+        __builtin_debugtrap();
+#endif
 
         std::abort();
     }
