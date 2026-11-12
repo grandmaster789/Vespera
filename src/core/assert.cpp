@@ -28,7 +28,7 @@ namespace {
 
             while (std::fgets(buffer, sizeof(buffer), status)) {
                 if (std::strncmp(buffer, "TracerPid:", 10) == 0) {
-                    result = true;
+                    result = (std::atoi(buffer + 10) != 0);
                     break;
                 }
             }
@@ -41,12 +41,13 @@ namespace {
     }
 
     void break_if_debugger_attached() {
-        if (is_debugger_attached())
+        if (is_debugger_attached()) {
 #ifdef _WIN32
             __debugbreak();
 #else
-            __builtin_trap();
+            __builtin_debugtrap();
 #endif
+        }
     }
 }
 
