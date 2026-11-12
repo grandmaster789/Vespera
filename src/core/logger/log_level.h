@@ -6,8 +6,8 @@
 namespace vespera::core::logger {
     enum class e_LogLevel {
         fatal,
-        warning,
         err,
+        warning,
         info,
         debug,
         trace
@@ -32,13 +32,13 @@ namespace std {
             // Info messages should be the most common, so they
             // should be least visually intrusive.
             switch (level) {
-                case e_LogLevel::trace:   return format_to(out, "[ - ] ");
-                case e_LogLevel::debug:   return format_to(out, "[dbg] ");
-                case e_LogLevel::info:    return format_to(out, "      ");
-                case e_LogLevel::warning: return format_to(out, "[***] ");
-                case e_LogLevel::err:     return format_to(out, "< ERROR > ");
-                case e_LogLevel::fatal:   return format_to(out, "<## FATAL ##> ");
-                default:                  return format_to(out, "[ ? ] ");
+                case e_LogLevel::trace:   return format_to(out, "[ - ]");
+                case e_LogLevel::debug:   return format_to(out, "[dbg]");
+                case e_LogLevel::info:    return format_to(out, "     ");
+                case e_LogLevel::warning: return format_to(out, "[***]");
+                case e_LogLevel::err:     return format_to(out, "< ERROR >");
+                case e_LogLevel::fatal:   return format_to(out, "<## FATAL ##>");
+                default:                  return format_to(out, "[ ? ]");
             }
         }
     };

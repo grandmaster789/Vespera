@@ -15,4 +15,7 @@ int main() {
     VESPERA_LOG_INFO("testing 123");
     VESPERA_LOG_WARNING("more {}", 111);
     VESPERA_LOG_TRACE("Foo: i={}, f={}, b={}, s={}", foo.i, foo.f, foo.b, foo.s);
+    VESPERA_LOG_ERROR("some error {} {} {}", 2.3, "xxx", true);
+    VESPERA_LOG_DEBUG("debugging");
+
 }

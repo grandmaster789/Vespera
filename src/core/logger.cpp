@@ -1,18 +1,20 @@
 #include "logger.h"
 #include "assert.h"
 #include <iostream>
+#include <filesystem>
 
 #ifdef _WIN32
     #define WIN32_LEAN_AND_MEAN
     #define NOMINMAX
-    #include <windows.H>
+    #include <windows.h>
 #endif
 
 namespace vespera::core {
     void log_message(const LogMeta& meta, const std::string& message) {
-        std::string formatted_message = std::format("{} {}:{} {}\n",
+        std::string formatted_message = std::format("{} {}:{}\t{}\n",
                 meta.m_Level,
-                meta.m_Location.file_name(),
+                std::filesystem::path(meta.m_Location.file_name())
+                    .filename().string(),
                 meta.m_Location.line(),
                 message
             );
