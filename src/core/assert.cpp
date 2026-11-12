@@ -12,8 +12,6 @@
     #define NOMINMAX
 
     #include <windows.h>
-#else
-
 #endif
 
 namespace {
@@ -48,7 +46,7 @@ namespace vespera::core {
         // placeholder until logging is implemented
         std::fputs(
             std::format(
-                "Assertion failed: {} at {}:{} - {}",
+                "Assertion failed: {} at {}:{} - {}\n",
                 condition,
                 location.file_name(),
                 location.line(),
@@ -68,11 +66,9 @@ namespace vespera::core {
         const std::source_location& location
     ) {
         // placeholder until logging is implemented
-        //std::println("Check failed: {} at {}:{} - {}", condition, location.file_name(), location.line(), message);
-
         std::fputs(
             std::format(
-                "Check failed: {} at {}:{} - {}",
+                "Check failed: {} at {}:{} - {}\n",
                 condition,
                 location.file_name(),
                 location.line(),
