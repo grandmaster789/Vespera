@@ -1,9 +1,9 @@
-#ifndef VESPERA_CORE_LOGGER_LOG_LEVEL_H
-#define VESPERA_CORE_LOGGER_LOG_LEVEL_H
+#ifndef VESPERA_CORE_LOG_LEVEL_H
+#define VESPERA_CORE_LOG_LEVEL_H
 
 #include <format>
 
-namespace vespera::core::logger {
+namespace vespera::core {
     enum class e_LogLevel {
         fatal,
         err,
@@ -16,14 +16,14 @@ namespace vespera::core::logger {
 
 namespace std {
     template <>
-    struct formatter<vespera::core::logger::e_LogLevel>:
+    struct formatter<vespera::core::e_LogLevel>:
         formatter<std::string>
     {
         constexpr auto format(
-            const ::vespera::core::logger::e_LogLevel level,
+            const ::vespera::core::e_LogLevel level,
             format_context& ctx
         ) const {
-            using vespera::core::logger::e_LogLevel;
+            using vespera::core::e_LogLevel;
 
             auto&& out = ctx.out();
 

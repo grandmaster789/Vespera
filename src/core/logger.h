@@ -3,12 +3,12 @@
 
 #include <source_location>
 #include <format>
-#include "logger/log_level.h"
+#include "log_level.h"
 
 namespace vespera::core {
     struct LogMeta {
         std::source_location m_Location;
-        logger::e_LogLevel   m_Level = logger::e_LogLevel::info;
+        e_LogLevel           m_Level = e_LogLevel::info;
     };
 
     void log_message(const LogMeta& meta, const std::string& message);
@@ -22,12 +22,12 @@ namespace vespera::core {
     std::format(__VA_ARGS__)                                      \
 )
 
-#define VESPERA_LOG_TRACE(...)   VESPERA_LOG_MACRO(vespera::core::logger::e_LogLevel::trace,   __VA_ARGS__)
-#define VESPERA_LOG_DEBUG(...)   VESPERA_LOG_MACRO(vespera::core::logger::e_LogLevel::debug,   __VA_ARGS__)
-#define VESPERA_LOG_INFO(...)    VESPERA_LOG_MACRO(vespera::core::logger::e_LogLevel::info,    __VA_ARGS__)
-#define VESPERA_LOG_WARNING(...) VESPERA_LOG_MACRO(vespera::core::logger::e_LogLevel::warning, __VA_ARGS__)
-#define VESPERA_LOG_ERROR(...)   VESPERA_LOG_MACRO(vespera::core::logger::e_LogLevel::err,     __VA_ARGS__)
-#define VESPERA_LOG_FATAL(...)   VESPERA_LOG_MACRO(vespera::core::logger::e_LogLevel::fatal,   __VA_ARGS__)
+#define VESPERA_LOG_TRACE(...)   VESPERA_LOG_MACRO(vespera::core::e_LogLevel::trace,   __VA_ARGS__)
+#define VESPERA_LOG_DEBUG(...)   VESPERA_LOG_MACRO(vespera::core::e_LogLevel::debug,   __VA_ARGS__)
+#define VESPERA_LOG_INFO(...)    VESPERA_LOG_MACRO(vespera::core::e_LogLevel::info,    __VA_ARGS__)
+#define VESPERA_LOG_WARNING(...) VESPERA_LOG_MACRO(vespera::core::e_LogLevel::warning, __VA_ARGS__)
+#define VESPERA_LOG_ERROR(...)   VESPERA_LOG_MACRO(vespera::core::e_LogLevel::err,     __VA_ARGS__)
+#define VESPERA_LOG_FATAL(...)   VESPERA_LOG_MACRO(vespera::core::e_LogLevel::fatal,   __VA_ARGS__)
 
 #define LOG(...) VESPERA_LOG_INFO(__VA_ARGS__)
 

@@ -1,30 +1,32 @@
 #include "logger.h"
 #include "assert.h"
-#include <iostream>
-#include <filesystem>
+#include "platform.h"
 
-#ifdef _WIN32
-    #define WIN32_LEAN_AND_MEAN
-    #define NOMINMAX
-    #include <windows.h>
-#endif
+#include <iostream>
+#include <string_view>
 
 namespace vespera::core {
     void log_message(const LogMeta& meta, const std::string& message) {
+        // from the path find either the last '/' or '\' and trim it to just the filename
+        auto file_name = std::string_view(meta.m_Location.file_name());
+        file_name = file_name.substr(
+            std::string_view(meta.m_Location.file_name())
+                .find_last_of("\\/") + 1
+        );
+
         std::string formatted_message = std::format("{} {}:{}\t{}\n",
                 meta.m_Level,
-                std::filesystem::path(meta.m_Location.file_name())
-                    .filename().string(),
+                file_name,
                 meta.m_Location.line(),
                 message
             );
 
         std::cerr << formatted_message;
 
-#ifdef _WIN32
+#if VESPERA_PLATFORM == VESPERA_PLATFORM_WINDOWS
         OutputDebugStringA(formatted_message.c_str());
 #endif
 
-        VESPERA_CHECK(meta.m_Level != logger::e_LogLevel::fatal, "Fatal error");
+        VESPERA_CHECK(meta.m_Level != e_LogLevel::fatal, "Fatal error");
     }
 }

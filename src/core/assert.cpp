@@ -1,52 +1,47 @@
 #include "assert.h"
 #include "logger.h"
+#include "platform.h"
 
-#include <cstdlib>
 #include <cstdio>
-#include <cstring>
 
-// TODO - move platform-specific includes to a central, consolidated place
-//        the main reason is to ensure that the same macros are used
-//        in the same order before including windows.h
-#ifdef _WIN32
-    #define WIN32_LEAN_AND_MEAN
-    #define NOMINMAX
-
-    #include <windows.h>
+#if VESPERA_PLATFORM != VESPERA_PLATFORM_WINDOWS
+    #include <cstdlib>
+    #include <cstring>
 #endif
 
 namespace {
     bool is_debugger_attached() {
-#ifdef _WIN32
-        return !!IsDebuggerPresent();
+#if VESPERA_PLATFORM == VESPERA_PLATFORM_WINDOWS
+            return !!IsDebuggerPresent();
 #else
-        // Linux equivalent of testing whether a debugger is attached
-        bool result = false;
+            // Linux equivalent of testing whether a debugger is attached
+            bool result = false;
 
-        if (auto* status = std::fopen("/proc/self/status", "r")) {
-            char buffer[1024] = {};
+            if (auto* status = std::fopen("/proc/self/status", "r")) {
+                char buffer[1024] = {};
 
-            while (std::fgets(buffer, sizeof(buffer), status)) {
-                if (std::strncmp(buffer, "TracerPid:", 10) == 0) {
-                    result = (std::atoi(buffer + 10) != 0);
-                    break;
+                while (std::fgets(buffer, sizeof(buffer), status)) {
+                    if (std::strncmp(buffer, "TracerPid:", 10) == 0) {
+                        result = (std::atoi(buffer + 10) != 0);
+                        break;
+                    }
                 }
+
+                std::fclose(status);
             }
 
-            std::fclose(status);
-        }
-
-        return result;
+            return result;
 #endif
     }
 
     void break_if_debugger_attached() {
         if (is_debugger_attached()) {
-#ifdef _WIN32
-            __debugbreak();
-#else
-            __builtin_debugtrap();
-#endif
+            if constexpr (vespera::core::is_windows) {
+                __debugbreak();
+            }
+            else {
+                __builtin_debugtrap();
+            }
         }
     }
 }
@@ -60,9 +55,9 @@ namespace vespera::core {
     ) {
         log_message({
                 .m_Location = location,
-                .m_Level = logger::e_LogLevel::err,
+                .m_Level    = e_LogLevel::err,
             },
-            std::format("Assertion failed: {} => {}\n", condition, message)
+            std::format("Assertion failed: {} => {}", condition, message)
         );
 
         break_if_debugger_attached();
@@ -77,9 +72,9 @@ namespace vespera::core {
     ) {
         log_message({
                 .m_Location = location,
-                .m_Level = logger::e_LogLevel::err,
+                .m_Level    = e_LogLevel::err,
             },
-            std::format("Check failed: {} => {}\n", condition, message)
+            std::format("Check failed: {} => {}", condition, message)
         );
 
         break_if_debugger_attached();
