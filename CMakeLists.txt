@@ -50,20 +50,23 @@ if(PROJECT_IS_TOP_LEVEL)
     target_link_libraries(vespera_app PRIVATE vespera)
     vespera_target_defaults(vespera_app)
 
-    add_executable(vespera_test)
-    target_link_libraries(vespera_test PRIVATE vespera)
-    add_test(NAME vespera_test COMMAND vespera_test)
-
+    # Unit tests: each tests/<dir>/<name>.cpp is its own executable named
+    # <dir>_<name> (e.g. tests/core/test_logger.cpp -> core_test_logger).
     file(GLOB_RECURSE VesperaUnitTestSources CONFIGURE_DEPENDS
         "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.cpp"
-        "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.inl"
     )
-
     list(FILTER VesperaUnitTestSources EXCLUDE REGEX "/tests/death/")
 
-    target_sources(vespera_test PRIVATE ${VesperaUnitTestSources})
-    vespera_target_defaults(vespera_test)
+    foreach(source IN LISTS VesperaUnitTestSources)
+        file(RELATIVE_PATH name ${CMAKE_CURRENT_SOURCE_DIR}/tests ${source})
+        string(REGEX REPLACE "\\.cpp$" "" name ${name})
+        string(REPLACE "/" "_" name ${name})
+
+        add_executable(${name} ${source})
+        target_link_libraries(${name} PRIVATE vespera)
+        vespera_target_defaults(${name})
+        add_test(NAME ${name} COMMAND ${name})
+    endforeach()
 
     # Death tests: each tests/death/<name>.cpp is its own executable that must
     # die from a failed assert/check (see cmake/death_test.cmake).
