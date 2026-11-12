@@ -1,7 +1,6 @@
 #ifndef VESPERA_CORE_LOGGER_LOG_LEVEL_H
 #define VESPERA_CORE_LOGGER_LOG_LEVEL_H
 
-#include <iosfwd>
 #include <format>
 
 namespace vespera::core::logger {
@@ -13,8 +12,6 @@ namespace vespera::core::logger {
         debug,
         trace
     };
-
-    std::ostream& operator<<(std::ostream& os, e_LogLevel level);
 }
 
 namespace std {
@@ -35,13 +32,13 @@ namespace std {
             // Info messages should be the most common, so they
             // should be least visually intrusive.
             switch (level) {
-                case e_LogLevel::trace:   return format_to(out, "[ - ] "); break;
-                case e_LogLevel::debug:   return format_to(out, "[dbg] "); break;
-                case e_LogLevel::info:    return format_to(out, "      "); break;
-                case e_LogLevel::warning: return format_to(out, "[***] "); break;
-                case e_LogLevel::err:     return format_to(out, "< ERROR > "); break;
-                case e_LogLevel::fatal:   return format_to(out, "<## FATAL ##> "); break;
-                default:                  return format_to(out, "[ ? ] "); break;
+                case e_LogLevel::trace:   return format_to(out, "[ - ] ");
+                case e_LogLevel::debug:   return format_to(out, "[dbg] ");
+                case e_LogLevel::info:    return format_to(out, "      ");
+                case e_LogLevel::warning: return format_to(out, "[***] ");
+                case e_LogLevel::err:     return format_to(out, "< ERROR > ");
+                case e_LogLevel::fatal:   return format_to(out, "<## FATAL ##> ");
+                default:                  return format_to(out, "[ ? ] ");
             }
         }
     };
