@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 #include <cstdio>
+#include <cstring>
 #include <format>
 
 // TODO - move platform-specific includes to a central, consolidated place
@@ -15,24 +16,37 @@
 #endif
 
 namespace {
-    void break_if_debugger_attached() {
+    bool is_debugger_attached() {
 #ifdef _WIN32
-        if (IsDebuggerPresent())
-            __debugbreak();
+        return !!IsDebuggerPresent();
 #else
         // Linux equivalent of testing whether a debugger is attached
-        if (auto* status = std::fopen("/proc/self/status", "r")) {
-            char buffer[1024];
+        bool result = false;
 
-            while (std::fgets(buffer, sizeof(buffer), status))
-                if (std::strstr(buffer, "TracerPid:") && std::atoi(buffer + 10))
-                    __builtin_debugtrap();
-            break;
+        if (auto* status = std::fopen("/proc/self/status", "r")) {
+            char buffer[1024] = {};
+
+            while (std::fgets(buffer, sizeof(buffer), status)) {
+                if (std::strncmp(buffer, "TracerPid:", 10) == 0) {
+                    result = true;
+                    break;
+                }
+            }
 
             std::fclose(status);
         }
-#endif
 
+        return result;
+#endif
+    }
+
+    void break_if_debugger_attached() {
+        if (is_debugger_attached())
+#ifdef _WIN32
+            __debugbreak();
+#else
+            __builtin_trap();
+#endif
     }
 }
 
