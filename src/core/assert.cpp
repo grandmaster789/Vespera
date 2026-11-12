@@ -1,9 +1,9 @@
 #include "assert.h"
+#include "logger.h"
 
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
-#include <format>
 
 // TODO - move platform-specific includes to a central, consolidated place
 //        the main reason is to ensure that the same macros are used
@@ -58,16 +58,11 @@ namespace vespera::core {
         const char* message,
         const std::source_location& location
     ) {
-        // placeholder until logging is implemented
-        std::fputs(
-            std::format(
-                "Assertion failed: {} at {}:{} - {}\n",
-                condition,
-                location.file_name(),
-                location.line(),
-                message
-            ).c_str(),
-            stderr
+        log_message({
+                .m_Location = location,
+                .m_Level = logger::e_LogLevel::err,
+            },
+            std::format("Assertion failed: {} => {}\n", condition, message)
         );
 
         break_if_debugger_attached();
@@ -80,16 +75,11 @@ namespace vespera::core {
         const char* message,
         const std::source_location& location
     ) {
-        // placeholder until logging is implemented
-        std::fputs(
-            std::format(
-                "Check failed: {} at {}:{} - {}\n",
-                condition,
-                location.file_name(),
-                location.line(),
-                message
-            ).c_str(),
-            stderr
+        log_message({
+                .m_Location = location,
+                .m_Level = logger::e_LogLevel::err,
+            },
+            std::format("Check failed: {} => {}\n", condition, message)
         );
 
         break_if_debugger_attached();
