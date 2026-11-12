@@ -10,12 +10,12 @@
     #define VESPERA_PLATFORM VESPERA_PLATFORM_WINDOWS
 
     #include "platform_windows.h"
-#endif
-
-#ifdef __linux__
+#elif defined(__linux__)
     #define VESPERA_PLATFORM VESPERA_PLATFORM_LINUX
 
-    #include "platform_unix.h"
+    #include "platform_linux.h"
+#else
+    #error "Unsupported platform"
 #endif
 
 namespace vespera::core {
@@ -24,9 +24,13 @@ namespace vespera::core {
         linux   = VESPERA_PLATFORM_LINUX
     };
 
-    static constexpr e_Platform platform = static_cast<e_Platform>(VESPERA_PLATFORM);
-    static constexpr bool is_windows = platform == e_Platform::windows;
-    static constexpr bool is_linux   = platform == e_Platform::linux;
+    constexpr e_Platform platform   = static_cast<e_Platform>(VESPERA_PLATFORM);
+    constexpr bool       is_windows = platform == e_Platform::windows;
+    constexpr bool       is_linux   = platform == e_Platform::linux;
+
+    bool is_debugger_attached();
+    void break_if_debugger_attached();
+    void debug_output(const char* message);
 }
 
 #endif
