@@ -2,6 +2,9 @@
 #include "logger.h"
 #include "platform.h"
 
+#include <cstdlib>
+#include <format>
+
 namespace vespera::core {
     [[noreturn]]
     void assertion_failed(

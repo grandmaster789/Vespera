@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <cstdio>
+#include <csignal>
 
 #include "platform_linux.h"
 
@@ -30,8 +31,14 @@ namespace vespera::core {
     }
 
     void break_if_debugger_attached() {
-        if (is_debugger_attached())
-            __builtin_debugtrap();
+        if (is_debugger_attached()) {
+            if constexpr (__has_builtin(__builtin_debugtrap)) {
+                __builtin_debugtrap();
+            }
+            else {
+                std::raise(SIGTRAP);
+            }
+        }
     }
 
     void debug_output(const char* message) {

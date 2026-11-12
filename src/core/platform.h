@@ -8,12 +8,8 @@
 
 #ifdef _WIN32
     #define VESPERA_PLATFORM VESPERA_PLATFORM_WINDOWS
-
-    #include "platform_windows.h"
 #elif defined(__linux__)
     #define VESPERA_PLATFORM VESPERA_PLATFORM_LINUX
-
-    #include "platform_linux.h"
 #else
     #error "Unsupported platform"
 #endif
