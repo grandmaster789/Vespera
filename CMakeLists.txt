@@ -1,5 +1,14 @@
 cmake_minimum_required(VERSION 3.28)
 
+# shaped-core's guard for the Windows developer environment. It has to run before
+# project() detects the compilers: it records which VS environment this build
+# directory was configured in, and refuses a later configure from a different one.
+# A mixed configure can pair cached and re-detected tools and hang the build.
+# On Linux it does nothing.
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/extern/shaped-core/tools/cmake/ConfigureEnvironment.cmake")
+    include("${CMAKE_CURRENT_SOURCE_DIR}/extern/shaped-core/tools/cmake/ConfigureEnvironment.cmake")
+endif()
+
 project(Vespera
         VERSION 0.1.0
         DESCRIPTION "Game engine + VR vertical bullet-hell"
@@ -27,6 +36,34 @@ if(PROJECT_IS_TOP_LEVEL)
     set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
     enable_testing()
 
+    # shaped-core, pinned as a git submodule. It must be added before any Vespera
+    # target exists.
+    #   SC_LIBRARIES     only these libraries (and what they depend on) get configured;
+    #                    later milestones add to the list
+    #   EXCLUDE_FROM_ALL build only what Vespera links, not shaped-core's tools
+    #   SYSTEM           its headers can't trip Vespera's warnings-as-errors
+    # shaped-core needs Clang 19 or newer (it builds and tests with 21). Older Clang
+    # fails deep inside clean-core's headers, so stop here with a clear message.
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19)
+        message(FATAL_ERROR
+            "Clang ${CMAKE_CXX_COMPILER_VERSION} is too old for shaped-core; it needs 19 or newer.\n"
+            "Pick a newer one: cmake --preset <name> --fresh -DCMAKE_C_COMPILER=clang-21 -DCMAKE_CXX_COMPILER=clang++-21")
+    endif()
+
+    if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/extern/shaped-core/CMakeLists.txt")
+        message(FATAL_ERROR
+            "extern/shaped-core is empty: the repository was cloned without its submodules.\n"
+            "Run: git submodule update --init --recursive")
+    endif()
+    set(SC_LIBRARIES "clean-core;typed-geometry")
+    add_subdirectory(extern/shaped-core EXCLUDE_FROM_ALL SYSTEM)
+
+    # Upstream bug workaround; see the header for when to delete it.
+    if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+        target_compile_options(clean-core PRIVATE
+            "$<$<COMPILE_LANGUAGE:CXX>:-include${CMAKE_CURRENT_SOURCE_DIR}/cmake/shaped_core_workarounds.h>")
+    endif()
+
     add_library(vespera)
 
     file(GLOB_RECURSE VesperaSources CONFIGURE_DEPENDS
@@ -37,6 +74,7 @@ if(PROJECT_IS_TOP_LEVEL)
 
     target_sources(vespera PRIVATE ${VesperaSources})
     target_include_directories(vespera PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+    target_link_libraries(vespera PUBLIC clean-core typed-geometry)
     vespera_target_defaults(vespera)
 
     add_executable(vespera_app)

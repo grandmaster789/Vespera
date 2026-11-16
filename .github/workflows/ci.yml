@@ -22,34 +22,53 @@ jobs:
       matrix:
         include:
           - { preset: win-clang,        os: windows-latest }
-          - { preset: linux-clang-asan, os: ubuntu-24.04 }
-          - { preset: linux-arm64,      os: ubuntu-24.04 }
+          - { preset: linux-clang-asan, os: ubuntu-26.04 }
+          # Native arm64, the way shaped-core tests it. The linux-arm64 cross
+          # preset stays for local use.
+          - { preset: linux-clang,      os: ubuntu-26.04-arm }
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Install tools (Windows)
         if: runner.os == 'Windows'
         run: choco install ninja -y --no-progress
 
+      # shaped-core's ConfigureEnvironment expects a VS developer environment.
+      # vcvars64 sets it up; its variables are exported to the later steps.
+      - name: Enter VS developer environment
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $vs = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath
+          cmd /c "`"$vs\VC\Auxiliary\Build\vcvars64.bat`" >nul && set" | ForEach-Object {
+            if ($_ -match '^([^=]+)=(.*)$') { "$($matches[1])=$($matches[2])" >> $env:GITHUB_ENV }
+          }
+
       - name: Install tools (Linux)
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends ninja-build clang
-          if [ "${{ matrix.preset }}" = "linux-arm64" ]; then
-            sudo apt-get install -y --no-install-recommends g++-aarch64-linux-gnu qemu-user
-          fi
+          sudo apt-get install -y --no-install-recommends ninja-build
 
       - name: Tool versions
         shell: bash
         run: |
           cmake --version | head -1
           ninja --version
-          if [ "$RUNNER_OS" = "Windows" ]; then clang-cl --version; else clang++ --version; fi
+          if [ "$RUNNER_OS" = "Windows" ]; then clang-cl --version; else clang++-21 --version; fi
 
+      # shaped-core builds with Clang 21 on Linux; the runner ships it beside older ones.
       - name: Configure
-        run: cmake --preset ${{ matrix.preset }}
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            cmake --preset ${{ matrix.preset }} -DCMAKE_C_COMPILER=clang-21 -DCMAKE_CXX_COMPILER=clang++-21
+          else
+            cmake --preset ${{ matrix.preset }}
+          fi
 
       - name: Build
         run: cmake --build --preset ${{ matrix.preset }}

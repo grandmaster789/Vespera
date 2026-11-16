@@ -22,3 +22,6 @@
 
 # IDE
 /.idea/
+
+# Per-machine CMake presets (e.g. which clang version)
+/CMakeUserPresets.json
