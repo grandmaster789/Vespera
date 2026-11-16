@@ -238,6 +238,20 @@ test to `CC_ASSERT_ALWAYS(true, "...")` and run it.
 Expected: FAIL with `exited cleanly`. Revert the temporary change, run again, and
 expect PASS.
 
+- [ ] **Step 4b: Keep the Windows death tests from hanging**
+
+clean-core's assert also ends in `std::abort()`. In a Debug build on Windows,
+when output isn't a console, that shows a modal dialog and CI hangs (found
+2026-11-16).
+- Add `void vespera::core::init()` in `src/core/init.{h,cpp}`. On Windows it calls
+  `_set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT)`; on Linux it does
+  nothing.
+- Call it first in `tests/death/assert_fires.cpp`, and later in the game's `main`.
+
+Run: `ctest --preset win-clang -R death`
+Expected: PASS in well under a second. It took 2.7 s while the dialog path was
+active.
+
 - [ ] **Step 5: Swap the remaining call sites and delete the old files**
 
 Make the replacements listed under Files, then delete the old files.
