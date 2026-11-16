@@ -3,6 +3,8 @@
 
 #include <span>
 #include <cstddef>
+#include <array>
+#include <vector>
 
 namespace vespera::core {
     class Arena {
@@ -42,8 +44,11 @@ namespace vespera::core {
         std::byte* m_Current = nullptr;
     };
 
+    template <typename T, size_t N>
+    Arena create_arena(std::array<T, N>& buffer);
+
     template <typename T>
-    Arena create_arena(T& buffer);
+    Arena create_arena(std::vector<T>& buffer);
 }
 
 #include "arena.inl"
