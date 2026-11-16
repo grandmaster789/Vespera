@@ -108,7 +108,6 @@ if(PROJECT_IS_TOP_LEVEL)
 
     # Death tests: each tests/death/<name>.cpp is its own executable that must
     # die from a failed assert/check (see cmake/death_test.cmake).
-    string(REPLACE ";" "|" VesperaEmulator "${CMAKE_CROSSCOMPILING_EMULATOR}")
     file(GLOB VesperaDeathTestSources CONFIGURE_DEPENDS
         "${CMAKE_CURRENT_SOURCE_DIR}/tests/death/*.cpp"
     )
@@ -123,7 +122,6 @@ if(PROJECT_IS_TOP_LEVEL)
             NAME death_${name}
             COMMAND ${CMAKE_COMMAND}
                 -DEXE=$<TARGET_FILE:death_${name}>
-                -DEMULATOR=${VesperaEmulator}
                 -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/death_test.cmake
         )
 

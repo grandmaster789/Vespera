@@ -50,8 +50,9 @@ Why this way:
 
 ## Non-goals (for Vespera; may return for a later game)
 
-- Running natively on the headset (Linux ARM64 standalone). The existing `linux-arm64`
-  CI preset stays, so the engine core keeps compiling for ARM64. Shipping on the
+- Running natively on the headset (Linux ARM64 standalone). CI keeps building and
+  testing on a native ARM64 runner (`ubuntu-26.04-arm`), so the engine keeps
+  compiling for ARM64. Shipping on the
   headset waits for a game that needs it.
 - D3D12, Metal, WebGPU, macOS, mobile.
 - Deferred shading, PBR material pipelines, ray tracing, shaped-viewer at runtime.
@@ -71,8 +72,9 @@ Why this way:
 
 ## Constraints
 
-- C++23, CMake 3.28 or later, Ninja; presets `win-clang`, `linux-clang`,
-  `linux-clang-asan` and `linux-arm64`. Warnings are errors.
+- C++23, CMake 3.28 or later, Ninja; presets `win-clang`, `linux-clang` and
+  `linux-clang-asan`; ARM64 is the `linux-clang` preset on a native ARM64 machine
+  (the qemu cross preset was dropped 2026-11-16). Warnings are errors.
 - Dependencies are kept minimal:
   - **shaped-core** (MIT), the foundation. Its libraries used here:
     - `clean-core` (containers, strings, memory, assertions)
@@ -310,9 +312,9 @@ plan written when we reach it.
 - **Generators run at load time on the player's machine** and are cached in
   `blob-cache`. Their output doesn't need to be bit-identical across platforms. Caches
   are per platform. `src/gen` ships in the game; `src/editor` doesn't.
-- **linux-arm64 CI** builds and tests `src/core` and `src/gen`, the code with no
-  hardware dependencies. Backends join it only when a game targets the headset
-  natively.
+- **ARM64 CI** builds and tests natively on `ubuntu-26.04-arm`. Once hardware
+  backends exist, the ARM64 job may be limited to the code without hardware
+  dependencies (`src/core`, `src/gen`), until a game targets the headset natively.
 - **Editor in VR:** no. While in VR, a desktop mirror window shows the game view and
   the ImGui tools. A floating ImGui panel inside the headset is a later option.
 

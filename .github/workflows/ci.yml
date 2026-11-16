@@ -23,8 +23,7 @@ jobs:
         include:
           - { preset: win-clang,        os: windows-latest }
           - { preset: linux-clang-asan, os: ubuntu-26.04 }
-          # Native arm64, the way shaped-core tests it. The linux-arm64 cross
-          # preset stays for local use.
+          # Native arm64, the way shaped-core tests it.
           - { preset: linux-clang,      os: ubuntu-26.04-arm }
 
     steps:

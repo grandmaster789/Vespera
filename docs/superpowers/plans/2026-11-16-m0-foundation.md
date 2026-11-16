@@ -23,8 +23,8 @@
   moves to `game/vespera/`.
 
 **Tech Stack:**
-- C++23, CMake 3.28, Ninja; presets `win-clang`, `linux-clang`, `linux-clang-asan`
-  and `linux-arm64`.
+- C++23, CMake 3.28, Ninja; presets `win-clang`, `linux-clang` and
+  `linux-clang-asan`. ARM64 runs `linux-clang` natively in CI.
 - shaped-core `8c853df4752a8ec74b3fc212bcbe34d60de84374`: `clean-core` and
   `typed-geometry`.
 
@@ -55,10 +55,9 @@
 2. **ASan preset with mimalloc.** LeakSanitizer can't see mimalloc memory, so
    clean-core containers report false leaks. `linux-clang-asan` must set
    `SC_MIMALLOC=OFF`. Covered in Task 1, Step 3.
-3. **Cross-compiling to linux-arm64.** shaped-core's arm64 support is tested
-   upstream only with native arm64 Clang, not with this repo's cross toolchain
-   under qemu. A failure must be fixed in Vespera's preset or reported upstream,
-   never patched inside the submodule. Covered in Task 1, Step 6.
+3. **ARM64.** CI builds natively on `ubuntu-26.04-arm` (the qemu cross preset was
+   dropped). A failure inside shaped-core is reported upstream, never patched
+   inside the submodule. Covered in Task 1, Step 6.
 4. **Death tests after the assert swap.** `cmake/death_test.cmake` matches
    `(Assertion|Check) failed:`. If clean-core words its failure message
    differently, the death test must still fail when nothing fires and pass when the
@@ -151,13 +150,10 @@ warnings from shaped-core headers; if there are, `SYSTEM` didn't take effect.
 - [ ] **Step 6: Run the Linux presets**
 
 Run in WSL or a Linux machine: `cmake --preset linux-clang-asan && cmake --build
---preset linux-clang-asan && ctest --preset linux-clang-asan`, then the same for
-`linux-arm64`. Pushing a branch and letting CI run them also works.
-Expected: all PASS. If `linux-arm64` fails inside shaped-core:
-- Record the exact error in `docs/blog/notes/m0.md`.
-- Fix it on Vespera's side if the cause is the preset's toolchain flags.
-- Otherwise report it upstream, and mark the arm64 job `continue-on-error: true`
-  with a comment linking the report.
+--preset linux-clang-asan && ctest --preset linux-clang-asan`, and let CI cover ARM64
+natively.
+Expected: all PASS. If ARM64 fails inside shaped-core, record the exact error in
+`docs/blog/notes/m0.md` and report it upstream.
 
 - [ ] **Step 7: Commit**
 
