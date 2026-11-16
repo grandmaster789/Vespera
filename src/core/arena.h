@@ -1,15 +1,18 @@
 #ifndef VESPERA_CORE_ARENA_H
 #define VESPERA_CORE_ARENA_H
 
-#include <span>
 #include <cstddef>
-#include <array>
-#include <vector>
+#include <span>
+#include <type_traits>
 
 namespace vespera::core {
+    // Bump allocator over a caller-owned buffer. The arena does not own the
+    // buffer; it must outlive the arena (and must not reallocate, e.g. a growing std::vector).
+    // Construct from any contiguous container with:
+    //     Arena arena(std::as_writable_bytes(std::span(buffer)));
     class Arena {
     public:
-        explicit Arena(std::span<std::byte> buffer);
+        explicit Arena(std::span<std::byte> buffer) noexcept;
 
         Arena(const Arena&) = delete;
         Arena& operator=(const Arena&) = delete;
@@ -21,20 +24,21 @@ namespace vespera::core {
         std::byte* try_allocate(
             std::size_t num_bytes,
             std::size_t alignment = std::size_t{alignof(std::max_align_t)}
-        );
+        ) noexcept;
 
-        void reset();
-        std::size_t get_capacity() const noexcept;
-        std::size_t bytes_available() const noexcept;
+        void reset() noexcept;
+        [[nodiscard]] std::size_t capacity() const noexcept;
+        [[nodiscard]] std::size_t bytes_available() const noexcept;
 
         template <typename T, typename... Args>
         requires
             std::is_trivially_destructible_v<T>
         T* create(Args&&... args);
 
+        // returns an empty span if the allocation fails
         template <typename T>
         requires
-            std::is_trivially_constructible_v<T> &&
+            std::is_default_constructible_v<T> &&
             std::is_trivially_destructible_v<T>
         std::span<T> create_array(std::size_t count);
 
@@ -43,12 +47,6 @@ namespace vespera::core {
         std::byte* m_End     = nullptr;
         std::byte* m_Current = nullptr;
     };
-
-    template <typename T, size_t N>
-    Arena create_arena(std::array<T, N>& buffer);
-
-    template <typename T>
-    Arena create_arena(std::vector<T>& buffer);
 }
 
 #include "arena.inl"

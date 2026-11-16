@@ -5,7 +5,7 @@
 #include <cstdint>
 
 namespace vespera::core {
-    Arena::Arena(std::span<std::byte> buffer):
+    Arena::Arena(std::span<std::byte> buffer) noexcept:
         m_Begin  (buffer.data()),
         m_End    (buffer.data() + buffer.size()),
         m_Current(buffer.data())
@@ -15,29 +15,28 @@ namespace vespera::core {
     std::byte* Arena::try_allocate(
         std::size_t num_bytes,
         std::size_t alignment
-    ) {
+    ) noexcept {
         VESPERA_ASSERT(std::has_single_bit(alignment), "Alignment must be a power of 2");
 
         const auto           p       = reinterpret_cast<std::uintptr_t>(m_Current);
         const std::uintptr_t aligned = (p + alignment - 1) & ~(alignment - 1);
         const std::size_t    padding = aligned - p;
+        const auto           remaining = static_cast<std::size_t>(m_End - m_Current);
 
-        if (const auto remaining = static_cast<const std::size_t>(m_End - m_Current);
-            padding > remaining ||
-            num_bytes > remaining - padding
-        )
+        if (padding > remaining || num_bytes > remaining - padding)
             return nullptr;
 
-        m_Current += padding + num_bytes;
+        std::byte* result = m_Current + padding;
+        m_Current = result + num_bytes;
 
-        return m_Current - num_bytes;
+        return result;
     }
 
-    void Arena::reset() {
+    void Arena::reset() noexcept {
         m_Current = m_Begin;
     }
 
-    std::size_t Arena::get_capacity() const noexcept {
+    std::size_t Arena::capacity() const noexcept {
         return static_cast<std::size_t>(m_End - m_Begin);
     }
 
