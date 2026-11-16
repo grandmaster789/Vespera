@@ -48,9 +48,9 @@ namespace vespera::core {
     };
 
     // Takes an lvalue so temporaries can't be used as backing storage.
-    template <typename Buffer>
-    requires requires (Buffer& b) { std::as_writable_bytes(std::span(b)); }
-    Arena create_arena(Buffer& buffer) noexcept {
+    template <typename t_Buffer>
+    requires requires (t_Buffer& b) { std::as_writable_bytes(std::span(b)); }
+    Arena create_arena(t_Buffer& buffer) noexcept {
         return Arena(std::as_writable_bytes(std::span(buffer)));
     }
 }
