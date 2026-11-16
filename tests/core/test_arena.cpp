@@ -24,7 +24,7 @@ struct alignas(16) Aligned16 {
 int main() {
     // create<T> constructs a usable object
     std::array<unsigned char, 1024> buffer = {};
-    Arena arena(std::as_writable_bytes(std::span(buffer)));
+    auto arena = vespera::core::create_arena(buffer);
 
     VESPERA_CHECK(arena.capacity() == sizeof(buffer), "capacity must equal buffer size in bytes");
 
@@ -38,7 +38,7 @@ int main() {
 
     // capacity is measured in bytes for non-byte element types
     std::vector<Foo> foo_buffer(256);
-    Arena arena2(std::as_writable_bytes(std::span(foo_buffer)));
+    auto arena2 = vespera::core::create_arena(foo_buffer);
 
     VESPERA_CHECK(arena2.capacity() == foo_buffer.size() * sizeof(Foo), "capacity must be in bytes, not elements");
 

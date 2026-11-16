@@ -8,8 +8,7 @@
 namespace vespera::core {
     // Bump allocator over a caller-owned buffer. The arena does not own the
     // buffer; it must outlive the arena (and must not reallocate, e.g. a growing std::vector).
-    // Construct from any contiguous container with:
-    //     Arena arena(std::as_writable_bytes(std::span(buffer)));
+    // Construct from any contiguous container with create_arena(buffer).
     class Arena {
     public:
         explicit Arena(std::span<std::byte> buffer) noexcept;
@@ -47,6 +46,13 @@ namespace vespera::core {
         std::byte* m_End     = nullptr;
         std::byte* m_Current = nullptr;
     };
+
+    // Takes an lvalue so temporaries can't be used as backing storage.
+    template <typename Buffer>
+    requires requires (Buffer& b) { std::as_writable_bytes(std::span(b)); }
+    Arena create_arena(Buffer& buffer) noexcept {
+        return Arena(std::as_writable_bytes(std::span(buffer)));
+    }
 }
 
 #include "arena.inl"
