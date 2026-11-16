@@ -7,7 +7,7 @@
 namespace vespera::core {
     class Arena {
     public:
-        explicit Arena(std::span<std::byte> memory);
+        explicit Arena(std::span<std::byte> buffer);
 
         Arena(const Arena&) = delete;
         Arena& operator=(const Arena&) = delete;
@@ -22,6 +22,8 @@ namespace vespera::core {
         );
 
         void reset();
+        std::size_t get_capacity() const noexcept;
+        std::size_t bytes_available() const noexcept;
 
         template <typename T, typename... Args>
         requires
@@ -39,6 +41,9 @@ namespace vespera::core {
         std::byte* m_End     = nullptr;
         std::byte* m_Current = nullptr;
     };
+
+    template <typename T>
+    Arena create_arena(T& buffer);
 }
 
 #include "arena.inl"

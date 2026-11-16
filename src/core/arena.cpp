@@ -36,4 +36,12 @@ namespace vespera::core {
     void Arena::reset() {
         m_Current = m_Begin;
     }
+
+    std::size_t Arena::get_capacity() const noexcept {
+        return static_cast<std::size_t>(m_End - m_Begin);
+    }
+
+    std::size_t Arena::bytes_available() const noexcept {
+        return static_cast<std::size_t>(m_End - m_Current);
+    }
 }

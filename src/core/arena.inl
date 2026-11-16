@@ -40,6 +40,16 @@ namespace vespera::core {
 
         return {arr, count};
     }
+
+    template <typename T>
+    Arena create_arena(T& buffer) {
+        auto* start = reinterpret_cast<std::byte*>(&buffer);
+
+        return Arena({
+            start,
+            start + sizeof(T),
+        });
+    }
 }
 
 #endif

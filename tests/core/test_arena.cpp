@@ -11,10 +11,7 @@ struct Foo {
 
 int main() {
     std::array<unsigned char, 1024> buffer = {};
-    vespera::core::Arena arena({
-        buffer.data(),
-        buffer.size()
-    });
+    auto arena = vespera::core::create_arena(buffer);
 
     Foo* foo = arena.create<Foo>();
     foo->i = 456;
