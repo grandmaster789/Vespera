@@ -1,5 +1,5 @@
-#include <core/assert.h>
+#include "clean-core/common/assert.hh"
 
 int main() {
-    VESPERA_CHECK(false, "This check should fire");
+    CC_ASSERT_ALWAYS(false, "This check should fire");
 }

@@ -7,7 +7,7 @@
 #include <utility>
 
 #include "core/arena.h"
-#include "core/assert.h"
+#include "clean-core/common/assert.hh"
 
 namespace vespera::core {
     template <typename T, typename... Args>
@@ -27,7 +27,7 @@ namespace vespera::core {
         std::is_default_constructible_v<T> &&
         std::is_trivially_destructible_v<T>
     std::span<T> Arena::create_array(std::size_t count) {
-        VESPERA_ASSERT(count <= SIZE_MAX / sizeof(T), "would overflow");
+        CC_ASSERT(count <= SIZE_MAX / sizeof(T), "would overflow");
 
         auto* bytes = try_allocate(sizeof(T) * count, alignof(T));
 

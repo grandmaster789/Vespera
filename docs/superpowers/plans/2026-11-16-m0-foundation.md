@@ -239,9 +239,14 @@ expect PASS.
 clean-core's assert also ends in `std::abort()`. In a Debug build on Windows,
 when output isn't a console, that shows a modal dialog and CI hangs (found
 2026-11-16).
-- Add `void vespera::core::init()` in `src/core/init.{h,cpp}`. On Windows it calls
-  `_set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT)`; on Linux it does
-  nothing.
+- Add `void vespera::core::init()` in `src/core/init.{h,cpp}`. It does two things:
+  - on Windows, calls `_set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT)`
+  - calls `cc::rec::install_default_console_listener()`; without it, `CC_LOG_*`
+    prints nothing, because clean-core records nothing until the program opts in
+- Declare a `vespera` recording domain in one header and define it in one `.cpp`
+  (`CC_REC_DECLARE_DOMAIN` / `CC_REC_DEFINE_DOMAIN`), so engine logs carry their own
+  name and can be filtered (see `extern/shaped-core/libs/base/clean-core/docs/logging.md`,
+  section "Domains").
 - Call it first in `tests/death/assert_fires.cpp`, and later in the game's `main`.
 
 Run: `ctest --preset win-clang -R death`

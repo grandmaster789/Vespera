@@ -13,9 +13,9 @@ execute_process(
 )
 
 if(result STREQUAL "0")
-    message(FATAL_ERROR "exited cleanly; expected an assert/check to fire\n${out}${err}")
+    message(FATAL_ERROR "exited cleanly; expected an assert to fire\n${out}${err}")
 endif()
-if(NOT "${out}${err}" MATCHES "(Assertion|Check) failed:")
-    message(FATAL_ERROR "terminated (${result}) without an assert/check message:\n${out}${err}")
+if(NOT "${out}${err}" MATCHES "Assertion failed:")
+    message(FATAL_ERROR "terminated (${result}) without an assert message:\n${out}${err}")
 endif()
 message(STATUS "terminated as expected (${result})")
