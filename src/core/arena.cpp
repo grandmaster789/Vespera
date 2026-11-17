@@ -3,6 +3,8 @@
 #include <bit>
 #include <cstdint>
 
+#include "clean-core/common/assert.hh"
+
 namespace vespera::core {
     Arena::Arena(std::span<std::byte> buffer) noexcept:
         m_Begin  (buffer.data()),

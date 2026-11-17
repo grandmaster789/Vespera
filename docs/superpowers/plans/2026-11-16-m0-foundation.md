@@ -306,6 +306,15 @@ Better: pass `PROJECT_VERSION` in with
 `target_compile_definitions(vespera PRIVATE VESPERA_VERSION="${PROJECT_VERSION}")`
 and log that, so the version has a single source.
 
+Add `void vespera::core::shutdown()` and call it last in `main`. Without it,
+`game_runs` fails at exit (found 2026-11-17): the console listener starts
+clean-core's recording thread, and its static `native_thread` asserts "must be
+joined before it is destroyed". `shutdown()` unregisters the listener handle that
+`install_default_console_listener()` returned, then calls `cc::rec::shutdown()`,
+which drains and joins. (clean-core's `docs/logging.md` says an application that
+runs until the process ends can ignore the handle; at `8c853df` that's not true.
+Report upstream next to the `isize` bug.)
+
 - [ ] **Step 3: Run**
 
 Run: `cmake --preset win-clang && cmake --build --preset win-clang && ctest --preset win-clang`

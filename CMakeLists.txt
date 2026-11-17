@@ -30,8 +30,6 @@ function(vespera_target_defaults target)
     set_target_properties(${target} PROPERTIES COMPILE_WARNING_AS_ERROR ON)
 endfunction()
 
-
-
 if(PROJECT_IS_TOP_LEVEL)
     set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
     enable_testing()
@@ -64,29 +62,36 @@ if(PROJECT_IS_TOP_LEVEL)
             "$<$<COMPILE_LANGUAGE:CXX>:-include${CMAKE_CURRENT_SOURCE_DIR}/cmake/shaped_core_workarounds.h>")
     endif()
 
-    add_library(vespera)
+    # The engine: everything reusable across games lives in src/.
+    add_library(vespera_engine)
 
-    file(GLOB_RECURSE VesperaSources CONFIGURE_DEPENDS
+    file(GLOB_RECURSE VesperaEngineSources CONFIGURE_DEPENDS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.inl"
     )
 
-    target_sources(vespera PRIVATE ${VesperaSources})
-    target_include_directories(vespera PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
-    target_link_libraries(vespera PUBLIC clean-core typed-geometry)
+    target_sources(vespera_engine PRIVATE ${VesperaEngineSources})
+    target_include_directories(vespera_engine PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+    target_link_libraries(vespera_engine PUBLIC clean-core typed-geometry)
+    vespera_target_defaults(vespera_engine)
+
+    # The game. A future game gets its own game/<name>/ and executable.
+    add_executable(vespera)
+
+    file(GLOB_RECURSE VesperaGameSources CONFIGURE_DEPENDS
+        "${CMAKE_CURRENT_SOURCE_DIR}/game/vespera/*.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/game/vespera/*.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/game/vespera/*.inl"
+    )
+    target_sources(vespera PRIVATE ${VesperaGameSources})
+    target_link_libraries(vespera PRIVATE vespera_engine)
+    # project(VERSION) is the single source of the version string.
+    target_compile_definitions(vespera PRIVATE VESPERA_VERSION="${PROJECT_VERSION}")
     vespera_target_defaults(vespera)
 
-    add_executable(vespera_app)
-
-    file(GLOB_RECURSE VesperaAppSources CONFIGURE_DEPENDS
-        "${CMAKE_CURRENT_SOURCE_DIR}/app/*.cpp"
-        "${CMAKE_CURRENT_SOURCE_DIR}/app/*.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/app/*.inl"
-    )
-    target_sources(vespera_app PRIVATE ${VesperaAppSources})
-    target_link_libraries(vespera_app PRIVATE vespera)
-    vespera_target_defaults(vespera_app)
+    # Smoke test: the game starts and exits cleanly.
+    add_test(NAME game_runs COMMAND vespera)
 
     # Unit tests: each tests/<dir>/<name>.cpp is its own executable named
     # <dir>_<name> (e.g. tests/core/test_logger.cpp -> core_test_logger).
@@ -101,7 +106,7 @@ if(PROJECT_IS_TOP_LEVEL)
         string(REPLACE "/" "_" name ${name})
 
         add_executable(${name} ${source})
-        target_link_libraries(${name} PRIVATE vespera)
+        target_link_libraries(${name} PRIVATE vespera_engine)
         vespera_target_defaults(${name})
         add_test(NAME ${name} COMMAND ${name})
     endforeach()
@@ -115,7 +120,7 @@ if(PROJECT_IS_TOP_LEVEL)
         get_filename_component(name ${source} NAME_WE)
 
         add_executable(death_${name} ${source})
-        target_link_libraries(death_${name} PRIVATE vespera)
+        target_link_libraries(death_${name} PRIVATE vespera_engine)
         vespera_target_defaults(death_${name})
 
         add_test(

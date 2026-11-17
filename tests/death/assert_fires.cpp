@@ -1,7 +1,7 @@
 #include "clean-core/common/assert.hh"
-#include "core/init.h"
+#include "core/engine.h"
 
 int main() {
-    vespera::core::init();
+    vespera::core::Engine engine;
     CC_ASSERT_ALWAYS(false, "This check should fire");
 }
