@@ -111,13 +111,13 @@ shaped-core goes in as a git submodule pinned to one commit, and CMake configure
 
 **Compiler versions.** Ubuntu 24.04's default Clang 18 lacks `std::hardware_destructive_interference_size`, which clean-core uses to keep threads from fighting over cache lines. It arrived in Clang 19. Instead of letting that fail deep inside a library header, the configure step now checks the Clang version and stops with a message saying what to install. CI now builds Linux with Clang 21, the same as shaped-core itself.
 
-**A bug in clean-core.** On Linux, clean-core's thread-naming code uses `isize` without its `cc::` namespace. The macOS branch of the same function had already been fixed; the Linux branch hadn't. Before deciding how to handle it, I checked shaped-core's own CI at that commit. It was red for the same reason, which settles whose bug it is. I didn't patch the submodule, since a local edit there is easy to lose and hard to notice. Instead, one header is force-included into clean-core's own sources on Linux, and it brings `cc::isize` into scope. It's marked for deletion once the fix lands upstream, and I'll report it to the authors.
+**A tiny bug in clean-core.** On Linux, clean-core's thread-naming code uses `isize` without its `cc::` namespace. The macOS branch of the same function had already been fixed; the Linux branch hadn't. Before deciding how to handle it, I checked shaped-core's own CI at that commit. It was red for the same reason, which settles whose bug it is. I didn't patch the submodule, since a local edit there is easy to lose and hard to notice. Instead, one header was force-included into clean-core's own sources on Linux to bring `cc::isize` into scope, marked for deletion once the fix landed upstream. It landed a few days later, so the pin moved to `c6c96c7` and the workaround is gone.
 
 **Windows CI that never finished.** The Windows job sat "in progress" for hours. The cause was the Debug C runtime: when `abort()` runs and there's no console attached, it shows a modal Abort/Retry/Ignore dialog. CI has no one to click it. The death test, which deliberately fails an assert to prove asserts work, waited on a dialog nobody could see. One call to `_set_abort_behavior` at startup turns the dialog off. Locally that test went from 2.7 s to 0.03 s, which is a clear signal to tell that the problem has been resolved.
 
 ## What linking a library does to your build
 
-Asking solid-core to use two libraries pulls in more than that. This is everything the game links at the end of M0:
+Asking shaped-core to use two libraries pulls in more than that. This is everything the game links at the end of M0:
 
 ![Vespera's link dependencies at the end of M0](images/m0-dependencies.png)
 

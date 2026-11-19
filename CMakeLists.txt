@@ -56,12 +56,6 @@ if(PROJECT_IS_TOP_LEVEL)
     set(SC_LIBRARIES "clean-core;typed-geometry")
     add_subdirectory(extern/shaped-core EXCLUDE_FROM_ALL SYSTEM)
 
-    # Upstream bug workaround; see the header for when to delete it.
-    if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-        target_compile_options(clean-core PRIVATE
-            "$<$<COMPILE_LANGUAGE:CXX>:-include${CMAKE_CURRENT_SOURCE_DIR}/cmake/shaped_core_workarounds.h>")
-    endif()
-
     # The engine: everything reusable across games lives in src/.
     add_library(vespera_engine)
 
