@@ -4,7 +4,7 @@
 #include "clean-core/record/domain_fwd.hh"
 
 namespace vespera {
-    CC_REC_DECLARE_DOMAIN(g_rec_domain);
+    CC_REC_DECLARE_DOMAIN(g_vespera_domain);
 }
 
 namespace vespera::core {

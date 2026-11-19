@@ -55,7 +55,6 @@ Why this way:
   compiling for ARM64. Shipping on the
   headset waits for a game that needs it.
 - D3D12, Metal, WebGPU, macOS, mobile.
-- Deferred shading, PBR material pipelines, ray tracing, shaped-viewer at runtime.
 - A general-purpose scene editor or imported-art pipeline. glTF import only if needed.
 - Networking and multiplayer.
 - SDL3, or any windowing or audio library besides the OS APIs.
