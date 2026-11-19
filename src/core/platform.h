@@ -23,10 +23,6 @@ namespace vespera::core {
     constexpr e_Platform platform   = static_cast<e_Platform>(VESPERA_PLATFORM);
     constexpr bool       is_windows = platform == e_Platform::windows;
     constexpr bool       is_linux   = platform == e_Platform::linux;
-
-    bool is_debugger_attached();
-    void break_if_debugger_attached();
-    void debug_output(const char* message);
 }
 
 #endif
