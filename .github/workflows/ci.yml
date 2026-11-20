@@ -21,8 +21,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # windows-2025 has VS 2022. windows-latest moved to VS 2026 (MSVC 14.52), whose STL
-          # refuses Clang < 22, while the runner's clang-cl is LLVM 20. Revisit once LLVM 22 ships there.
+          # The windows-2025 label is moving to the VS 2026 image; the toolset pin below copes with both.
           - { preset: win-clang,        os: windows-2025 }
           - { preset: linux-clang-asan, os: ubuntu-26.04 }
           # Native arm64, the way shaped-core tests it.
@@ -39,14 +38,18 @@ jobs:
 
       # shaped-core's ConfigureEnvironment expects a VS developer environment.
       # vcvars64 sets it up; its variables are exported to the later steps.
+      # -vcvars_ver=14.44 pins the VS 2022 toolset: VS 2026's default MSVC 14.52 STL refuses
+      # Clang < 22, and the runner's clang-cl is LLVM 20. Both runner images ship 14.44.
+      # Drop the pin once the runner's LLVM is 22 or newer.
       - name: Enter VS developer environment
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
           $vs = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath
-          cmd /c "`"$vs\VC\Auxiliary\Build\vcvars64.bat`" >nul && set" | ForEach-Object {
+          cmd /c "`"$vs\VC\Auxiliary\Build\vcvars64.bat`" -vcvars_ver=14.44 >nul && set" | ForEach-Object {
             if ($_ -match '^([^=]+)=(.*)$') { "$($matches[1])=$($matches[2])" >> $env:GITHUB_ENV }
           }
+          if ($LASTEXITCODE) { throw "vcvars64 failed (is MSVC 14.44 installed?)" }
 
       - name: Install tools (Linux)
         if: runner.os == 'Linux'
