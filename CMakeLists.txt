@@ -1,5 +1,14 @@
 cmake_minimum_required(VERSION 3.28)
 
+# shaped-core's guard for the Windows developer environment. It has to run before
+# project() detects the compilers: it records which VS environment this build
+# directory was configured in, and refuses a later configure from a different one.
+# A mixed configure can pair cached and re-detected tools and hang the build.
+# On Linux it does nothing.
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/extern/shaped-core/tools/cmake/ConfigureEnvironment.cmake")
+    include("${CMAKE_CURRENT_SOURCE_DIR}/extern/shaped-core/tools/cmake/ConfigureEnvironment.cmake")
+endif()
+
 project(Vespera
         VERSION 0.1.0
         DESCRIPTION "Game engine + VR vertical bullet-hell"
@@ -21,34 +30,62 @@ function(vespera_target_defaults target)
     set_target_properties(${target} PROPERTIES COMPILE_WARNING_AS_ERROR ON)
 endfunction()
 
-
-
 if(PROJECT_IS_TOP_LEVEL)
     set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
     enable_testing()
 
-    add_library(vespera)
+    # shaped-core, pinned as a git submodule. It must be added before any Vespera
+    # target exists.
+    #   SC_LIBRARIES     only these libraries (and what they depend on) get configured;
+    #                    later milestones add to the list
+    #   EXCLUDE_FROM_ALL build only what Vespera links, not shaped-core's tools
+    #   SYSTEM           its headers can't trip Vespera's warnings-as-errors
+    # shaped-core needs Clang 19 or newer (it builds and tests with 21). Older Clang
+    # fails deep inside clean-core's headers, so stop here with a clear message.
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19)
+        message(FATAL_ERROR
+            "Clang ${CMAKE_CXX_COMPILER_VERSION} is too old for shaped-core; it needs 19 or newer.\n"
+            "Pick a newer one: cmake --preset <name> --fresh -DCMAKE_C_COMPILER=clang-21 -DCMAKE_CXX_COMPILER=clang++-21")
+    endif()
 
-    file(GLOB_RECURSE VesperaSources CONFIGURE_DEPENDS
+    if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/extern/shaped-core/CMakeLists.txt")
+        message(FATAL_ERROR
+            "extern/shaped-core is empty: the repository was cloned without its submodules.\n"
+            "Run: git submodule update --init --recursive")
+    endif()
+    set(SC_LIBRARIES "clean-core;typed-geometry")
+    add_subdirectory(extern/shaped-core EXCLUDE_FROM_ALL SYSTEM)
+
+    # The engine: everything reusable across games lives in src/.
+    add_library(vespera_engine)
+
+    file(GLOB_RECURSE VesperaEngineSources CONFIGURE_DEPENDS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.inl"
     )
 
-    target_sources(vespera PRIVATE ${VesperaSources})
-    target_include_directories(vespera PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+    target_sources(vespera_engine PRIVATE ${VesperaEngineSources})
+    target_include_directories(vespera_engine PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+    target_link_libraries(vespera_engine PUBLIC clean-core typed-geometry)
+    vespera_target_defaults(vespera_engine)
+
+    # The game. A future game gets its own game/<name>/ and executable.
+    add_executable(vespera)
+
+    file(GLOB_RECURSE VesperaGameSources CONFIGURE_DEPENDS
+        "${CMAKE_CURRENT_SOURCE_DIR}/game/vespera/*.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/game/vespera/*.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/game/vespera/*.inl"
+    )
+    target_sources(vespera PRIVATE ${VesperaGameSources})
+    target_link_libraries(vespera PRIVATE vespera_engine)
+    # project(VERSION) is the single source of the version string.
+    target_compile_definitions(vespera PRIVATE VESPERA_VERSION="${PROJECT_VERSION}")
     vespera_target_defaults(vespera)
 
-    add_executable(vespera_app)
-
-    file(GLOB_RECURSE VesperaAppSources CONFIGURE_DEPENDS
-        "${CMAKE_CURRENT_SOURCE_DIR}/app/*.cpp"
-        "${CMAKE_CURRENT_SOURCE_DIR}/app/*.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/app/*.inl"
-    )
-    target_sources(vespera_app PRIVATE ${VesperaAppSources})
-    target_link_libraries(vespera_app PRIVATE vespera)
-    vespera_target_defaults(vespera_app)
+    # Smoke test: the game starts and exits cleanly.
+    add_test(NAME game_runs COMMAND vespera)
 
     # Unit tests: each tests/<dir>/<name>.cpp is its own executable named
     # <dir>_<name> (e.g. tests/core/test_logger.cpp -> core_test_logger).
@@ -63,14 +100,13 @@ if(PROJECT_IS_TOP_LEVEL)
         string(REPLACE "/" "_" name ${name})
 
         add_executable(${name} ${source})
-        target_link_libraries(${name} PRIVATE vespera)
+        target_link_libraries(${name} PRIVATE vespera_engine)
         vespera_target_defaults(${name})
         add_test(NAME ${name} COMMAND ${name})
     endforeach()
 
     # Death tests: each tests/death/<name>.cpp is its own executable that must
     # die from a failed assert/check (see cmake/death_test.cmake).
-    string(REPLACE ";" "|" VesperaEmulator "${CMAKE_CROSSCOMPILING_EMULATOR}")
     file(GLOB VesperaDeathTestSources CONFIGURE_DEPENDS
         "${CMAKE_CURRENT_SOURCE_DIR}/tests/death/*.cpp"
     )
@@ -78,14 +114,13 @@ if(PROJECT_IS_TOP_LEVEL)
         get_filename_component(name ${source} NAME_WE)
 
         add_executable(death_${name} ${source})
-        target_link_libraries(death_${name} PRIVATE vespera)
+        target_link_libraries(death_${name} PRIVATE vespera_engine)
         vespera_target_defaults(death_${name})
 
         add_test(
             NAME death_${name}
             COMMAND ${CMAKE_COMMAND}
                 -DEXE=$<TARGET_FILE:death_${name}>
-                -DEMULATOR=${VesperaEmulator}
                 -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/death_test.cmake
         )
 

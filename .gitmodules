@@ -1,0 +1,4 @@
+[submodule "extern/shaped-core"]
+	path = extern/shaped-core
+	url = https://github.com/solidean/shaped-core
+	update = merge

@@ -1,8 +1,9 @@
 #include "core/arena.h"
-#include "core/assert.h"
 
 #include <bit>
 #include <cstdint>
+
+#include "clean-core/common/assert.hh"
 
 namespace vespera::core {
     Arena::Arena(std::span<std::byte> buffer) noexcept:
@@ -16,7 +17,7 @@ namespace vespera::core {
         std::size_t num_bytes,
         std::size_t alignment
     ) noexcept {
-        VESPERA_ASSERT(std::has_single_bit(alignment), "Alignment must be a power of 2");
+        CC_ASSERT(std::has_single_bit(alignment), "Alignment must be a power of 2");
 
         const auto           p       = reinterpret_cast<std::uintptr_t>(m_Current);
         const std::uintptr_t aligned = (p + alignment - 1) & ~(alignment - 1);
