@@ -17,7 +17,7 @@ namespace vespera::core {
     }
 
     int FixedStep::advance(double elapsed_seconds) {
-        CC_ASSERT_ALWAYS(elapsed_seconds >= 0, "The elapsed time must be positive");
+        CC_ASSERT_ALWAYS(elapsed_seconds >= 0, "The elapsed time must not be negative");
 
         m_banked_time += elapsed_seconds;
 
