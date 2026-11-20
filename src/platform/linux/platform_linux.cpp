@@ -1,4 +1,4 @@
-#include "platform.h"
+#include "../platform.h"
 
 #if VESPERA_PLATFORM == VESPERA_PLATFORM_LINUX
 

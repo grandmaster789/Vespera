@@ -1,6 +1,6 @@
 #include "engine.h"
 
-#include "platform.h"
+#include "platform/platform.h"
 #include "clean-core/common/log.hh"
 #include "clean-core/record/domain.hh"
 #include "clean-core/record/console_listener.hh"
