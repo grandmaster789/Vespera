@@ -21,7 +21,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { preset: win-clang,        os: windows-latest }
+          # windows-2025 has VS 2022. windows-latest moved to VS 2026 (MSVC 14.52), whose STL
+          # refuses Clang < 22, while the runner's clang-cl is LLVM 20. Revisit once LLVM 22 ships there.
+          - { preset: win-clang,        os: windows-2025 }
           - { preset: linux-clang-asan, os: ubuntu-26.04 }
           # Native arm64, the way shaped-core tests it.
           - { preset: linux-clang,      os: ubuntu-26.04-arm }
