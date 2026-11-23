@@ -32,10 +32,6 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Install tools (Windows)
-        if: runner.os == 'Windows'
-        run: choco install ninja -y --no-progress
-
       # shaped-core's ConfigureEnvironment expects a VS developer environment.
       # vcvars64 sets it up; its variables are exported to the later steps.
       # -vcvars_ver=14.44 pins the VS 2022 toolset: VS 2026's default MSVC 14.52 STL refuses
