@@ -15,9 +15,9 @@ namespace vespera::core {
         [[nodiscard]] double alpha() const; // banked_time / step_secs, in [0, 1)
 
     private:
-        double m_banked_time           = 0.0;  // accumulator starts empty
-        double m_step_secs;                    // how long a step should take, in seconds
-        int    m_max_steps_per_advance;        // the maximum number of steps we can have when advancing
+        double m_BankedTime = 0.0;   // accumulator starts empty
+        double m_StepSecs;           // how long a step should take, in seconds
+        int    m_MaxStepsPerAdvance; // the maximum number of steps we can have when advancing
     };
 }
 

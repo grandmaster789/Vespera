@@ -4,7 +4,7 @@
 
 #include "platform_windows.h"
 
-namespace vespera::core {
+namespace vespera::platform {
 }
 
 #endif

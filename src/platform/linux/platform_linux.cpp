@@ -9,7 +9,7 @@
 
 #include "platform_linux.h"
 
-namespace vespera::core {
+namespace vespera::platform {
 }
 
 #endif

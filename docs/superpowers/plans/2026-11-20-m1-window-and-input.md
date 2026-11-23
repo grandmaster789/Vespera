@@ -171,8 +171,8 @@ Expected: `core_test_fixed_step` passes, along with the 4 existing tests.
 ### Task 2: Input state, key codes and gamepad math (pure, both OSes)
 
 **Files:**
-- Create: `src/platform/input.h`, `src/platform/input.cpp`
-- Test: `tests/platform/test_input.cpp` (becomes `platform_test_input`)
+- Create: `../../../src/input/input.h`, `../../../src/input/input.cpp`
+- Test: `../../../tests/input/test_input.cpp` (becomes `platform_test_input`)
 
 **Interfaces:**
 - Produces (all in `namespace vespera::platform`):
@@ -242,7 +242,7 @@ Expected: `core_test_fixed_step` passes, along with the 4 existing tests.
     step.
   - With several steps in one frame, only the first step sees it.
 
-- [ ] **Step 1: Write the failing test** `tests/platform/test_input.cpp`:
+- [ ] **Step 1: Write the failing test** `../../../tests/input/test_input.cpp`:
 
 ```cpp
 #include <platform/input.h>

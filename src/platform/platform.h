@@ -14,7 +14,7 @@
     #error "Unsupported platform"
 #endif
 
-namespace vespera::core {
+namespace vespera::platform {
     enum class e_Platform {
         windows = VESPERA_PLATFORM_WINDOWS,
         linux   = VESPERA_PLATFORM_LINUX
