@@ -12,10 +12,10 @@ namespace vespera::input {
     }
 
     ButtonState& KeyboardState::operator[](e_Key k) {
-        return m_Keys[static_cast<size_t>(k)];
+        return m_Keys[static_cast<std::size_t>(k)];
     }
 
     const ButtonState& KeyboardState::operator[](e_Key k) const {
-        return m_Keys[static_cast<size_t>(k)];
+        return m_Keys[static_cast<std::size_t>(k)];
     }
 }

@@ -4,9 +4,9 @@
 
 #include "platform/windows/input_keyboard_windows.h"
 
-/*static bool pretty_close(float a, float b) {
+static bool pretty_close(float a, float b) {
     return std::abs(a - b) < 1e-4f;
-}*/
+}
 
 void test_button_taps() {
     using vespera::input::ButtonState;
@@ -83,6 +83,22 @@ void test_gamepad_unplug() {
     CC_ASSERT_ALWAYS(is.m_Gamepad.m_LeftStick == tg::vec2f::zero, "stick zeroed");
 }
 
+void test_gamepad_math() {
+    using vespera::input::GamepadState;
+
+    CC_ASSERT_ALWAYS(pretty_close(GamepadState::normalize_axis(-32768, -32768, 32767), -1.0f), "axis min");
+    CC_ASSERT_ALWAYS(pretty_close(GamepadState::normalize_axis(32767, -32768, 32767), 1.0f),   "axis max");
+    CC_ASSERT_ALWAYS(std::abs(GamepadState::normalize_axis(0, -32768, 32767)) < 1e-4f,         "axis centre");
+
+    CC_ASSERT_ALWAYS(pretty_close(GamepadState::normalize_trigger(1023, 0, 1023), 1.0f),                        "trigger max");
+    CC_ASSERT_ALWAYS(GamepadState::apply_radial_deadzone(tg::vec2f{0.1f, 0.1f}, 0.24f) == tg::vec2f(0, 0),      "inside the deadzone");
+    CC_ASSERT_ALWAYS(pretty_close(GamepadState::apply_radial_deadzone(tg::vec2f{1.0f, 0.0f}, 0.24f)[0], 1.0f),  "full tilt stays 1");
+    CC_ASSERT_ALWAYS(pretty_close(GamepadState::apply_radial_deadzone(tg::vec2f{0.62f, 0.0f}, 0.24f)[0], 0.5f), "rescaled from the edge");
+    auto diag = GamepadState::apply_radial_deadzone(tg::vec2f{1.0f, 1.0f}, 0.24f);
+
+    CC_ASSERT_ALWAYS(pretty_close(diag[0] * diag[0] + diag[1] * diag[1], 1.0f), "corners clamp to length 1");
+}
+
 #if VESPERA_PLATFORM == VESPERA_PLATFORM_WINDOWS
 
 void test_win32_scancode() {
@@ -110,6 +126,7 @@ int main() {
     test_button_taps();
     test_focus_loss();
     test_gamepad_unplug();
+    test_gamepad_math();
 
 #if VESPERA_PLATFORM == VESPERA_PLATFORM_WINDOWS
     test_win32_scancode();

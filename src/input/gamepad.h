@@ -21,7 +21,7 @@ namespace vespera::input {
     };
 
     struct GamepadState {
-        using ButtonList = std::array<ButtonState, static_cast<size_t>(e_GamepadButton::count)>;
+        using ButtonList = std::array<ButtonState, static_cast<std::size_t>(e_GamepadButton::count)>;
 
         void connect();
         void disconnect();
@@ -33,24 +33,24 @@ namespace vespera::input {
         // implementations for normalization is platform specific, but have a shared interface
         // see platform/[$]/input_gamepad_[$].cpp for the implementation
         [[nodiscard]]
-        float normalize_axis(
+        static float normalize_axis(
             std::int32_t value,
             std::int32_t minimum,
             std::int32_t maximum
-        ) const;
+        );
 
         [[nodiscard]]
-        float normalize_trigger(
+        static float normalize_trigger(
             std::int32_t value,
             std::int32_t minimum,
             std::int32_t maximum
-        ) const;
+        );
 
         [[nodiscard]]
-        tg::vec2f apply_radial_deadzone(
+        static tg::vec2f apply_radial_deadzone(
             tg::vec2f stick,
             float deadzone
-        ) const;
+        );
 
         // XInput's documented values, also used on linux
         static constexpr float k_LeftStickDeadzone  = 7'849.0f / 32'767.0f;

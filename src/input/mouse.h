@@ -18,7 +18,7 @@ namespace vespera::input {
     };
 
     struct MouseState {
-        using MouseButtonList = std::array<ButtonState, static_cast<size_t>(e_MouseButton::count)>;
+        using MouseButtonList = std::array<ButtonState, static_cast<std::size_t>(e_MouseButton::count)>;
 
         void clear_deltas();
 

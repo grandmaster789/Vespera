@@ -23,7 +23,7 @@ namespace vespera::input {
     };
 
     struct KeyboardState {
-        using KeyList = std::array<ButtonState, static_cast<size_t>(e_Key::count)>;
+        using KeyList = std::array<ButtonState, static_cast<std::size_t>(e_Key::count)>;
 
         void clear_all_edges();
         void release_all();
