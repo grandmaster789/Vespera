@@ -77,13 +77,10 @@ namespace vespera::input {
         // outside deadzone, rescale from the non-deadzone area
         if (len <= deadzone)
             return tg::vec2f::zero;
-        else {
-            float rescale = 1.0f - deadzone;
 
-            auto direction = stick.normalized();
-            auto result = stick * rescale + direction * deadzone;
+        // the area around the deadzone should smoothly transition from 0 to 1
+        auto new_len = (std::min(len, 1.0f) - deadzone) / (1.0f - deadzone);
 
-            return result;
-        }
+        return (stick / len) * new_len;
     }
 }
