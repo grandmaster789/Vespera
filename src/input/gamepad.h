@@ -25,6 +25,8 @@ namespace vespera::input {
 
         void connect();
         void disconnect();
+        void clear_edges();
+        void release_all();
         void reset();
 
         [[nodiscard]]       ButtonState& operator[](e_GamepadButton button);

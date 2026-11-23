@@ -1,5 +1,5 @@
-#ifndef VESPERA_CORE_PLATFORM_H
-#define VESPERA_CORE_PLATFORM_H
+#ifndef VESPERA_PLATFORM_PLATFORM_H
+#define VESPERA_PLATFORM_PLATFORM_H
 
 // main platform-specific dispatch per platform
 

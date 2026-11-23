@@ -13,14 +13,30 @@ namespace vespera::input {
         reset();
     }
 
-    void GamepadState::reset() {
-        // release all buttons
+    void GamepadState::clear_edges() {
+        for (auto& b: m_Buttons)
+            b.clear_edges();
+    }
+
+    void GamepadState::release_all() {
         for (auto& b: m_Buttons)
             b.release();
+    }
+
+    void GamepadState::reset() {
+        // release all buttons, clear all edges
+        for (auto& b: m_Buttons) {
+            b.release();
+            b.clear_edges();
+        }
 
         // zero both axes
         m_LeftStick  = tg::vec2f::zero;
         m_RightStick = tg::vec2f::zero;
+
+        // zero the triggers
+        m_LeftTrigger  = 0.0f;
+        m_RightTrigger = 0.0f;
     }
 
     ButtonState& GamepadState::operator[](e_GamepadButton b) {

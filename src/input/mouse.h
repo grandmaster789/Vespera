@@ -21,6 +21,9 @@ namespace vespera::input {
         using MouseButtonList = std::array<ButtonState, static_cast<std::size_t>(e_MouseButton::count)>;
 
         void clear_deltas();
+        void clear_edges();
+        void release_all();
+        void reset();
 
         tg::pos2i m_Position;        // client pixels, origin is top-left
         tg::vec2i m_Delta;           // summed since last end_step

@@ -115,7 +115,10 @@ void test_win32_scancode() {
 #elif VESPERA_PLATFORM == VESPERA_PLATFORM_LINUX
 
 void test_linux_evdev_code() {
-
+    CC_ASSERT_ALWAYS(key_from_evdev_code(17)  == e_Key::w,      "evdev KEY_W");
+    CC_ASSERT_ALWAYS(key_from_evdev_code(103) == e_Key::up,     "evdev KEY_UP");
+    CC_ASSERT_ALWAYS(key_from_evdev_code(1)   == e_Key::escape, "evdev KEY_ESC");
+    CC_ASSERT_ALWAYS(!key_from_evdev_code(0).has_value(),       "KEY_RESERVED is no key");
 }
 
 #else
