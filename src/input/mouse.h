@@ -23,7 +23,9 @@ namespace vespera::input {
         void clear_deltas();
         void clear_edges();
         void release_all();
-        void reset();
+
+        [[nodiscard]]       ButtonState& operator[](e_MouseButton button);
+        [[nodiscard]] const ButtonState& operator[](e_MouseButton button) const;
 
         tg::pos2i m_Position;        // client pixels, origin is top-left
         tg::vec2i m_Delta;           // summed since last end_step

@@ -13,6 +13,5 @@ namespace vespera::input {
         // releases keys and mouse buttons, for example on focus loss
         m_Keyboard.release_all();
         m_Mouse.release_all();
-        m_Gamepad.release_all();
     }
 }

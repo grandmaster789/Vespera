@@ -16,8 +16,11 @@ namespace vespera::input {
             b.release();
     }
 
-    void MouseState::reset() {
-        clear_deltas();
-        clear_edges();
+    ButtonState& MouseState::operator[](e_MouseButton button) {
+        return m_ButtonStates[static_cast<std::size_t>(button)];
+    }
+
+    const ButtonState& MouseState::operator[](e_MouseButton button) const {
+        return m_ButtonStates[static_cast<std::size_t>(button)];
     }
 }

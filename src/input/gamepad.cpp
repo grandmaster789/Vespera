@@ -1,7 +1,6 @@
 #include "gamepad.h"
 
-#include <iostream>
-#include <ostream>
+#include <algorithm>
 
 namespace vespera::input {
     void GamepadState::connect() {
@@ -16,11 +15,6 @@ namespace vespera::input {
     void GamepadState::clear_edges() {
         for (auto& b: m_Buttons)
             b.clear_edges();
-    }
-
-    void GamepadState::release_all() {
-        for (auto& b: m_Buttons)
-            b.release();
     }
 
     void GamepadState::reset() {

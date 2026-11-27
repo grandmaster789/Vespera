@@ -26,14 +26,12 @@ namespace vespera::input {
         void connect();
         void disconnect();
         void clear_edges();
-        void release_all();
         void reset();
 
         [[nodiscard]]       ButtonState& operator[](e_GamepadButton button);
         [[nodiscard]] const ButtonState& operator[](e_GamepadButton button) const;
 
-        // implementations for normalization is platform specific, but have a shared interface
-        // see platform/[$]/input_gamepad_[$].cpp for the implementation
+        // remap the value to [-1..1]
         [[nodiscard]]
         static float normalize_axis(
             std::int32_t value,
@@ -41,6 +39,7 @@ namespace vespera::input {
             std::int32_t maximum
         );
 
+        // remap the value to [0..1]
         [[nodiscard]]
         static float normalize_trigger(
             std::int32_t value,

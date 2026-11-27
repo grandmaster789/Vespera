@@ -7,8 +7,6 @@
 #include "button.h"
 
 namespace vespera::input {
-    struct ButtonState;
-
     // NOTE this is an incomplete list, add entries as needed
     enum class e_Key:
         std::uint8_t

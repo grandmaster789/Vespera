@@ -67,6 +67,18 @@ void test_focus_loss() {
     );
 }
 
+void test_mouse_edges() {
+    using vespera::input::InputState;
+    using vespera::input::e_MouseButton;
+
+    InputState is;
+    is.m_Mouse[e_MouseButton::left].press();
+
+    is.release_all();
+
+    CC_ASSERT_ALWAYS(is.m_Mouse[e_MouseButton::left].m_Released, "release_all() should release all edges");
+}
+
 void test_gamepad_unplug() {
     using vespera::input::InputState;
     using vespera::input::e_GamepadButton;
@@ -76,11 +88,24 @@ void test_gamepad_unplug() {
     is.m_Gamepad.connect();
     is.m_Gamepad[e_GamepadButton::a].press();
     is.m_Gamepad.m_LeftStick = tg::vec2f { 0.5f, 0.5f };
+    is.m_Gamepad.m_LeftTrigger = 0.9f;
     is.m_Gamepad.disconnect();
 
     CC_ASSERT_ALWAYS(!is.m_Gamepad.m_Connected,                   "disconnect() should disconnect");
     CC_ASSERT_ALWAYS(is.m_Gamepad[e_GamepadButton::a].m_Released, "the button A is released on unplug");
-    CC_ASSERT_ALWAYS(is.m_Gamepad.m_LeftStick == tg::vec2f::zero, "stick zeroed");
+    CC_ASSERT_ALWAYS(is.m_Gamepad.m_LeftStick == tg::vec2f::zero, "stick zeroed on disconnect");
+    CC_ASSERT_ALWAYS(is.m_Gamepad.m_LeftTrigger == 0.0f,          "trigger zeroed on disconnect");
+}
+
+void test_gamepad_edges() {
+    using vespera::input::InputState;
+    using vespera::input::e_GamepadButton;
+
+    InputState is;
+    is.m_Gamepad[e_GamepadButton::a].press();
+    is.end_step();
+
+    CC_ASSERT_ALWAYS(!is.m_Gamepad[e_GamepadButton::a].m_Pressed, "end_step should reset gamepad button presses");
 }
 
 void test_gamepad_math() {
@@ -128,8 +153,10 @@ void test_linux_evdev_code() {
 int main() {
     test_button_taps();
     test_focus_loss();
+    test_mouse_edges();
     test_gamepad_unplug();
     test_gamepad_math();
+    test_gamepad_edges();
 
 #if VESPERA_PLATFORM == VESPERA_PLATFORM_WINDOWS
     test_win32_scancode();
